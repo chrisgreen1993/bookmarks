@@ -1,3 +1,4 @@
+/* jshint expr:true */
 import {expect} from 'chai';
 import mongoose from 'mongoose';
 import {Bookmark, User} from '../server/models';
@@ -77,6 +78,37 @@ describe('models', () => {
         })
         .catch(done);
     });
+    it('#login should fail if user doesn\'t exist', done => {
+      User.login('idonotexist@email.com', 'password')
+        .then(done)
+        .catch(err => {
+          expect(err).to.exist;
+          expect(err.message).to.equal('Incorrect Email');
+          done();
+        });
+    });
+    it('#login should fail if password incorrect', done => {
+      User.login('email@email.com', 'incorrect')
+        .then(done)
+        .catch(err => {
+          expect(err).to.exist;
+          expect(err.message).to.equal('Incorrect Password');
+          done();
+        });
+    });
+    it('#login should return user if all correct', done => {
+      User.login('email@email.com', '123456')
+        .then(user => {
+          expect(user).to.exist;
+          expect(user.email).to.equal('email@email.com');
+          User.findOne({email: 'email@email.com'})
+            .then(user => {
+              expect(user).to.exist;
+              done();
+            });
+        })
+        .catch(done);
+    });
   });
   describe('Bookmark', () => {
     it('Should fail validation is url isn\'t valid', done => {
@@ -90,14 +122,14 @@ describe('models', () => {
         });
     });
     it('Should fail if user not specified', done => {
-      const bookmark = new Bookmark({url: 'google.com'})
+      const bookmark = new Bookmark({url: 'google.com'});
       bookmark.save()
         .catch(err => {
           expect(err).to.exist;
           expect(err.name).to.equal('ValidationError');
-          expect(err.errors.user.message).to.equal('Path `user` is required.')
+          expect(err.errors.user.message).to.equal('Path `user` is required.');
           done();
-        })
-    })
-  })
+        });
+    });
+  });
 });

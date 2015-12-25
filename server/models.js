@@ -30,30 +30,52 @@ UserSchema.pre('save', function(next) {
   this.hashPassword().then(next).catch(next);
 });
 
-UserSchema.methods.validPassword = function(password) {
-  return new Promise((resolve, reject) => {
-    bcrypt.compare(password, this.password, (err, isMatch) => {
-      if (err) return reject(err);
-      resolve(isMatch);
-    });
-  });
-};
-
-UserSchema.methods.hashPassword = function() {
-  return new Promise((resolve, reject) => {
-    bcrypt.genSalt(5, (err, salt) => {
-      if (err) return reject(err);
-      bcrypt.hash(this.password, salt, (err, hash) => {
+UserSchema.methods = {
+  validPassword(password) {
+    return new Promise((resolve, reject) => {
+      bcrypt.compare(password, this.password, (err, isMatch) => {
         if (err) return reject(err);
-        this.password = hash;
-        resolve(this);
+        resolve(isMatch);
       });
     });
-  });
+  },
+  hashPassword() {
+    return new Promise((resolve, reject) => {
+      bcrypt.genSalt(5, (err, salt) => {
+        if (err) return reject(err);
+        bcrypt.hash(this.password, salt, (err, hash) => {
+          if (err) return reject(err);
+          this.password = hash;
+          resolve(this);
+        });
+      });
+    });
+  }
 };
 
+UserSchema.statics = {
+  login(email, password) {
+    return new Promise((resolve, reject) => {
+      this.findOne({email: email})
+        .then(user => {
+          if (!user) reject({message: 'Incorrect Email'});
+          user.validPassword(password)
+            .then(isMatch => {
+              if (!isMatch) reject({message: 'Incorrect Password'});
+              resolve(user);
+            });
+        });
+    });
+  }
+};
 
-UserSchema.set('toJSON', {versionKey: false});
+UserSchema.set('toJSON', {
+  versionKey: false,
+  transform: (doc, ret, options) => {
+    delete ret.password;
+    return ret;
+  }
+});
 
 const Bookmark = mongoose.model('Bookmark', BookmarkSchema);
 const User = mongoose.model('User', UserSchema);

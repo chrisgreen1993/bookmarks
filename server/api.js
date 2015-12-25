@@ -1,35 +1,53 @@
 import {Router} from 'express';
-import {Snippet} from './models';
+import passport from 'passport';
+import {User, Bookmark} from './models';
+import Auth from './auth';
 
 const api = Router();
-
-//api.get('/', (req, res) => res.json({version: '1.0'}));
 
 api.post('/users', (req, res) => {
   res.json({message: 'TODO'});
 });
 
-api.post('/users/:id/login', (req, res) => {
+
+api.post('/users/login', (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    if (err) next(err);
+    if (!user) {
+      const err = new Error();
+      err.statusCode = 401;
+      err.message = info.message;
+      next(err);
+    }
+    req.logIn(user, err => {
+      if (err) next(err);
+      res.json(user);
+    });
+  })(req, res, next);
+});
+
+api.post('/users/logout', Auth.ensureAuthenticated, (req, res) => {
+  req.logout();
+  res.json({message: 'Logged out'});
+});
+
+api.get('/bookmarks', Auth.ensureAuthenticated, (req, res) => {
   res.json({message: 'TODO'});
 });
 
-api.post('/users/:id/logout', (req, res) => {
+api.post('/bookmarks', Auth.ensureAuthenticated, (req, res) => {
   res.json({message: 'TODO'});
 });
 
-api.get('/bookmarks/:id', (req, res) => {
+api.get('/bookmarks/:id', Auth.ensureAuthenticated, (req, res) => {
   res.json({message: 'TODO'});
 });
 
-api.post('/bookmarks', (req, res) => {
+api.put('/bookmarks/:id', Auth.ensureAuthenticated, (req, res) => {
   res.json({message: 'TODO'});
 });
 
-api.put('/bookmarks/:id', (req, res) => {
-  res.json({message: 'TODO'});
-});
-
-api.delete('/bookmarks/:id', (req, res) => {
+api.delete('/bookmarks/:id', Auth.ensureAuthenticated, (req, res) => {
   res.json({message: 'TODO'});
 });
 
