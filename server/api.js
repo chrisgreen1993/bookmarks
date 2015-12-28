@@ -5,8 +5,22 @@ import Auth from './auth';
 
 const api = Router();
 
-api.post('/users', (req, res) => {
-  res.json({message: 'TODO'});
+api.post('/users', (req, res, next) => {
+  const {email, password} = req.body;
+  User.register(email, password)
+    .then(user => {
+      req.logIn(user, err => {
+        if (err) next(err);
+        res.json(user);
+      });
+    })
+    .catch(err => {
+      //TODO: Check if server error
+      const error = new Error();
+      error.statusCode = 409;
+      error.message = err.message;
+      next(error);
+    });
 });
 
 

@@ -17,6 +17,7 @@ describe('api', () => {
     User.create(user)
       .then(() =>  {
         request(server).post('/api/users/login').send(user).expect(200).end((err, res) => {
+          if (err) return done(err);
           cookie = res.headers['set-cookie'].pop().split(';')[0];
           done();
         });
@@ -63,7 +64,7 @@ describe('api', () => {
         done();
       });
   });
-  it('POST /users/login should return user', done => {
+  it('POST /users/login should return user and cookie', done => {
     const login = {email: 'email@email.com', password: '123456'};
     request(server)
       .post('/api/users/login')
@@ -95,6 +96,27 @@ describe('api', () => {
           .post('/api/users/logout')
           .set('Cookie', cookie)
           .expect(401, done);
+      });
+  });
+  it('POST /users should return 409 if user with email already exists', done => {
+    const user = {email: 'email@email.com', password: 'password'};
+    request(server)
+      .post('/api/users')
+      .send(user)
+      .expect(409)
+      .expect({status: 409, error: 'Conflict', message: 'User with this email already exists'}, done);
+  });
+  it('POST /users should return new user and log them in', done => {
+    const user = {email: 'hello@email.net', password: 'super_strong_and_safe'};
+    request(server)
+      .post('/api/users')
+      .send(user)
+      .expect(200)
+      .end((err, res) => {
+        expect(res.body).to.have.all.keys('_id', 'email');
+        expect(res.body.email).to.equal('hello@email.net');
+        expect(res.headers).to.have.property('set-cookie');
+        done();
       });
   });
 });

@@ -109,6 +109,29 @@ describe('models', () => {
         })
         .catch(done);
     });
+    it('#register should fail if user already exists', done => {
+      User.register('email@email.com', 'some_password')
+        .then(done)
+        .catch(err => {
+          expect(err).to.exist;
+          expect(err.message).to.equal('User with this email already exists');
+          done();
+        });
+    });
+    it('#register should return new user if no user with same email', done => {
+      User.register('an_email@email.co.uk', 'super_secret')
+        .then(user => {
+          expect(user).to.exist;
+          expect(user.email).to.equal('an_email@email.co.uk');
+          expect(user.password).to.not.equal('super_secret');
+          User.findOne({email: 'an_email@email.co.uk'})
+            .then(user => {
+              expect(user).to.exist;
+              done();
+            });
+        })
+        .catch(done);
+    });
   });
   describe('Bookmark', () => {
     it('Should fail validation is url isn\'t valid', done => {
