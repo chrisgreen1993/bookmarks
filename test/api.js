@@ -15,7 +15,14 @@ describe('api', () => {
   beforeEach(done => {
     const user = {email: 'email@email.com', password: "123456"};
     User.create(user)
-      .then(() =>  {
+      .then(newUser =>  {
+        const bookmarks = [
+          {title: 'cool webpage', url: 'webpage.com/hello', user: newUser._id},
+          {title: 'search', url: 'google.com', user: newUser._id}
+        ];
+        return Bookmark.create(bookmarks);
+      })
+      .then(() => {
         request(server).post('/api/users/login').send(user).expect(200).end((err, res) => {
           if (err) return done(err);
           cookie = res.headers['set-cookie'].pop().split(';')[0];
@@ -118,5 +125,38 @@ describe('api', () => {
         expect(res.headers).to.have.property('set-cookie');
         done();
       });
+  });
+  it('GET /bookmarks should get logged in users bookmarks', done => {
+    request(server)
+      .get('/api/bookmarks')
+      .set('Cookie', cookie)
+      .expect(200)
+      .end((err, res) => {
+        User.findOne({email: 'email@email.com'})
+          .then(user => {
+            expect(res.body).to.exist;
+            expect(res.body).to.have.length(2);
+            res.body.map(bookmark => expect(bookmark).to.have.all.keys('_id', 'title', 'url', 'user'));
+            expect(res.body[0].title).to.equal('cool webpage');
+            expect(res.body[0].url).to.equal('webpage.com/hello');
+            expect(res.body[0].user).to.equal(user._id.toString());
+            expect(res.body[1].title).to.equal('search');
+            expect(res.body[1].url).to.equal('google.com');
+            expect(res.body[1].user).to.equal(user._id.toString());
+            done();
+          })
+          .catch(done);
+      });
+  });
+  it('GET /bookmarks should return empty array when user has no bookmarks', done => {
+    Bookmark.remove({})
+      .then(() => {
+        request(server)
+          .get('/api/bookmarks')
+          .set('Cookie', cookie)
+          .expect(200)
+          .expect([], done);
+      })
+      .catch(done);
   });
 });

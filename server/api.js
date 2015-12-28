@@ -46,7 +46,9 @@ api.post('/users/logout', Auth.ensureAuthenticated, (req, res) => {
 });
 
 api.get('/bookmarks', Auth.ensureAuthenticated, (req, res) => {
-  res.json({message: 'TODO'});
+  Bookmark.find({user: req.user._id})
+    .then(bookmarks => res.json(bookmarks))
+    .catch(err => next(err));
 });
 
 api.post('/bookmarks', Auth.ensureAuthenticated, (req, res) => {
