@@ -206,6 +206,7 @@ describe('api', () => {
           .end((err, res) => {
             if (err) return done(err);
             expect(res.body).to.exist;
+            expect(res.body).to.have.all.keys('_id', 'title', 'url', 'user');
             expect(res.body._id).to.equal(bookmark._id.toString());
             expect(res.body.title).to.equal('search');
             expect(res.body.url).to.equal('google.com');
@@ -216,9 +217,107 @@ describe('api', () => {
   });
   it('GET /bookmarks/:id should return 404 if bookmark doesn\'t exist', done => {
     request(server)
-      .get('/api/bookmarks/123345')
+      .get('/api/bookmarks/123345') //Invalid ID
       .set('Cookie', cookie)
       .expect(404)
-      .expect({status: 404, error: 'Not Found'}, done);
+      .expect({status: 404, error: 'Not Found'})
+      .end((err, res) => {
+        if (err) return done(err);
+        const id = '551137c2f9e1fac808a5f572'; // Valid ID - doesn't exist
+        expect(mongoose.Types.ObjectId.isValid(id)).to.be.true;
+        request(server)
+          .get('/api/bookmarks/' + id)
+          .set('Cookie', cookie)
+          .expect(404)
+          .expect({status: 404, error: 'Not Found'}, done);
+      });
+  });
+  it('PUT /bookmarks/:id should update bookmark', done => {
+    const bookmarkUpdate = {title: 'updated this', url: 'webpage.com/updated_this'};
+    Bookmark.findOne({title: 'cool webpage'})
+      .then(bookmark => {
+        request(server)
+          .put('/api/bookmarks/' + bookmark._id.toString())
+          .set('Cookie', cookie)
+          .send(bookmarkUpdate)
+          .expect(200)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.body).to.exist;
+            expect(res.body).to.have.all.keys('_id', 'title', 'url', 'user');
+            expect(res.body._id).to.equal(bookmark._id.toString());
+            expect(res.body.title).to.equal('updated this');
+            expect(res.body.url).to.equal('webpage.com/updated_this');
+            expect(res.body.user).to.equal(bookmark.user.toString());
+            done();
+          });
+      });
+  });
+  it('PUT /bookmarks/:id should return 400 if url isn\'t valid', done => {
+    const bookmarkUpdate = {title: 'updated this', url: 'not_valid'};
+    Bookmark.findOne({title: 'cool webpage'})
+      .then(bookmark => {
+        request(server)
+          .put('/api/bookmarks/' + bookmark._id.toString())
+          .set('Cookie', cookie)
+          .send(bookmarkUpdate)
+          .expect(400)
+          .expect({status: 400, error: 'Bad Request'}, done);
+      });
+  })
+  it('PUT /bookmarks/:id should return 404 if bookmark doesn\'t exist', done => {
+    const bookmarkUpdate = {title: 'updated this', url: 'webpage.com/updated_this'};
+    request(server)
+      .put('/api/bookmarks/23563463') // Invalid ID
+      .set('Cookie', cookie)
+      .send(bookmarkUpdate)
+      .expect(404)
+      .expect({status: 404, error: 'Not Found'})
+      .end((err, res) => {
+        if (err) return done(err);
+        const id = '551137c2f9e1fac808a5f572'; // Valid ID - doesn't exist
+        expect(mongoose.Types.ObjectId.isValid(id)).to.be.true;
+        request(server)
+          .put('/api/bookmarks/' + id)
+          .set('Cookie', cookie)
+          .send(bookmarkUpdate)
+          .expect(404)
+          .expect({status: 404, error: 'Not Found'}, done);
+      });
+  });
+  it('DELETE /bookmarks/:id should delete bookmark', done => {
+    Bookmark.findOne({title: 'cool webpage'})
+      .then(bookmark => {
+        request(server)
+          .delete('/api/bookmarks/' + bookmark._id.toString())
+          .set('Cookie', cookie)
+          .expect(204)
+          .end((err, res) => {
+            if (err) return done();
+            Bookmark.count({_id: bookmark._id})
+              .then(count => {
+                expect(count).to.equal(0);
+                done();
+              })
+              .catch(done);
+          });
+      });
+  });
+  it('DELETE /bookmarks/:id should return 404 if bookmark doesn\'t exist', done => {
+    request(server)
+      .delete('/api/bookmarks/23563463') // Invalid ID
+      .set('Cookie', cookie)
+      .expect(404)
+      .expect({status: 404, error: 'Not Found'})
+      .end((err, res) => {
+        if (err) return done(err);
+        const id = '551137c2f9e1fac808a5f572'; // Valid ID - doesn't exist
+        expect(mongoose.Types.ObjectId.isValid(id)).to.be.true;
+        request(server)
+          .delete('/api/bookmarks/' + id)
+          .set('Cookie', cookie)
+          .expect(404)
+          .expect({status: 404, error: 'Not Found'}, done);
+      });
   });
 });
