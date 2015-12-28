@@ -51,8 +51,19 @@ api.get('/bookmarks', Auth.ensureAuthenticated, (req, res, next) => {
     .catch(err => next(err));
 });
 
-api.post('/bookmarks', Auth.ensureAuthenticated, (req, res) => {
-  res.json({message: 'TODO'});
+api.post('/bookmarks', Auth.ensureAuthenticated, (req, res, next) => {
+  const {title, url} = req.body;
+  Bookmark.create({title, url, user: req.user._id})
+    .then(bookmark => res.json(bookmark))
+    .catch(err => {
+      if (err.name === 'ValidationError') {
+        // TODO: error message
+        const error = new Error();
+        error.statusCode = 400;
+        return next(error);
+      }
+      next(err);
+    });
 });
 
 api.get('/bookmarks/:id', Auth.ensureAuthenticated, (req, res, next) => {
@@ -73,15 +84,15 @@ api.get('/bookmarks/:id', Auth.ensureAuthenticated, (req, res, next) => {
         err.statusCode = 404;
         return next(err);
       }
-      return next(err);
+      next(err);
     });
 });
 
-api.put('/bookmarks/:id', Auth.ensureAuthenticated, (req, res) => {
+api.put('/bookmarks/:id', Auth.ensureAuthenticated, (req, res, next) => {
   res.json({message: 'TODO'});
 });
 
-api.delete('/bookmarks/:id', Auth.ensureAuthenticated, (req, res) => {
+api.delete('/bookmarks/:id', Auth.ensureAuthenticated, (req, res, next) => {
   res.json({message: 'TODO'});
 });
 

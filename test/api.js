@@ -159,6 +159,43 @@ describe('api', () => {
       })
       .catch(done);
   });
+  it('POST /bookmarks should create a new bookmark for logged in user', done => {
+    const bookmark = {title: 'super cool site', url: 'chrisgreen1993.com'};
+    request(server)
+      .post('/api/bookmarks')
+      .set('Cookie', cookie)
+      .send(bookmark)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        User.findOne({email: 'email@email.com'})
+          .then(user => {
+            expect(res.body).to.exist;
+            expect(res.body).to.have.all.keys('_id', 'title', 'url', 'user');
+            expect(res.body.title).to.equal('super cool site');
+            expect(res.body.url).to.equal('chrisgreen1993.com');
+            expect(res.body.user).to.equal(user._id.toString());
+            done();
+          })
+          .catch(done);
+      });
+  });
+  it('POST /bookmarks should return 400 if no POST data', done => {
+    request(server)
+      .post('/api/bookmarks')
+      .set('Cookie', cookie)
+      .send({})
+      .expect(400)
+      .expect({status: 400, error: 'Bad Request'}, done);
+  });
+  it('POST /bookmarks should return 400 if url isn\'t valid', done => {
+    request(server)
+      .post('/api/bookmarks')
+      .set('Cookie', cookie)
+      .send({'url': 54647})
+      .expect(400)
+      .expect({status: 400, error: 'Bad Request'}, done);
+  });
   it('GET /bookmarks/:id should return bookmark', done => {
     Bookmark.findOne({title: 'search'})
       .then(bookmark => {
@@ -174,8 +211,8 @@ describe('api', () => {
             expect(res.body.url).to.equal('google.com');
             expect(res.body.user).to.equal(bookmark.user.toString());
             done();
-          })
-      })
+          });
+      });
   });
   it('GET /bookmarks/:id should return 404 if bookmark doesn\'t exist', done => {
     request(server)
