@@ -159,4 +159,29 @@ describe('api', () => {
       })
       .catch(done);
   });
+  it('GET /bookmarks/:id should return bookmark', done => {
+    Bookmark.findOne({title: 'search'})
+      .then(bookmark => {
+        request(server)
+          .get('/api/bookmarks/' + bookmark._id.toString())
+          .set('Cookie', cookie)
+          .expect(200)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.body).to.exist;
+            expect(res.body._id).to.equal(bookmark._id.toString());
+            expect(res.body.title).to.equal('search');
+            expect(res.body.url).to.equal('google.com');
+            expect(res.body.user).to.equal(bookmark.user.toString());
+            done();
+          })
+      })
+  });
+  it('GET /bookmarks/:id should return 404 if bookmark doesn\'t exist', done => {
+    request(server)
+      .get('/api/bookmarks/123345')
+      .set('Cookie', cookie)
+      .expect(404)
+      .expect({status: 404, error: 'Not Found'}, done);
+  });
 });
