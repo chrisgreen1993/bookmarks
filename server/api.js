@@ -16,7 +16,7 @@ api.post('/users', (req, res, next) => {
       });
     })
     .catch(err => {
-      //TODO: Check if server error
+      if (err.name === 'Error') return next(err);
       return next(createError(409, err.message));
     });
 });

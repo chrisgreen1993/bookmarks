@@ -75,7 +75,8 @@ UserSchema.statics = {
               if (!isMatch) return reject({message: 'Incorrect Password'});
               resolve(user);
             });
-        });
+        })
+        .catch(err => reject(err));
     });
   }
 };

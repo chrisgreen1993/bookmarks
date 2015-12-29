@@ -9,7 +9,10 @@ function authenticate() {
   (email, password, done) => {
     User.login(email, password)
       .then(user => done(null, user))
-      .catch(err => done(null, false, err));
+      .catch(err => {
+        if (err.name === 'Error') return done(err);
+        done(null, false, err);
+      });
   });
 }
 

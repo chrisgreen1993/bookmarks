@@ -83,6 +83,7 @@ describe('models', () => {
         .then(done)
         .catch(err => {
           expect(err).to.exist;
+          expect(err.name).to.not.exist;
           expect(err.message).to.equal('Incorrect Email');
           done();
         });
@@ -92,6 +93,7 @@ describe('models', () => {
         .then(done)
         .catch(err => {
           expect(err).to.exist;
+          expect(err.name).to.not.exist;
           expect(err.message).to.equal('Incorrect Password');
           done();
         });
@@ -114,6 +116,7 @@ describe('models', () => {
         .then(done)
         .catch(err => {
           expect(err).to.exist;
+          expect(err.name).to.not.exist;
           expect(err.message).to.equal('User with this email already exists');
           done();
         });
