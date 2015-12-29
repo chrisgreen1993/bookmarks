@@ -49,8 +49,11 @@ api.post('/bookmarks', Auth.ensureAuthenticated, (req, res, next) => {
   Bookmark.create({title, url, user: req.user._id})
     .then(bookmark => res.json(bookmark))
     .catch(err => {
-      // TODO: error message
-      if (err.name === 'ValidationError') return next(createError(400));
+      if (err.name === 'ValidationError') {
+        console.log(err);
+        const errors = Object.keys(err.errors).map(prop => ({field: err.errors[prop].path, message: err.errors[prop].message}));
+        return next(createError(400, err.message, {errors}));
+      }
       next(err);
     });
 });
@@ -82,7 +85,12 @@ api.put('/bookmarks/:id', Auth.ensureAuthenticated, (req, res, next) => {
       // But we still want to throw a 404 with these
       if (err.name === 'CastError') return next(createError(404));
       // TODO: error message
-      if (err.name === 'ValidationError') return next(createError(400));
+      if (err.name === 'ValidationError') {
+        const errors = Object.keys(err.errors).map(prop => ({field: err.errors[prop].path, message: err.errors[prop].message}));
+        // Mongoose doesn't put model name at the start for findOneAndUpdate
+        const message = 'Bookmark ' + err.message.toLowerCase();
+        return next(createError(400, message, {errors}));
+      }
       next(err);
     });
 });

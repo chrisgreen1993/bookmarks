@@ -185,7 +185,7 @@ describe('api', () => {
       .set('Cookie', cookie)
       .send({})
       .expect(400)
-      .expect({message: 'Bad Request'}, done);
+      .expect({message: 'Bookmark validation failed', errors: [{field: 'url', message: 'Path `url` is required.'}]}, done);
   });
   it('POST /bookmarks should return 400 if url isn\'t valid', done => {
     request(server)
@@ -193,7 +193,7 @@ describe('api', () => {
       .set('Cookie', cookie)
       .send({'url': 54647})
       .expect(400)
-      .expect({message: 'Bad Request'}, done);
+      .expect({message: 'Bookmark validation failed', errors: [{field: 'url', message: 'Invalid URL'}]}, done);
   });
   it('GET /bookmarks/:id should return bookmark', done => {
     Bookmark.findOne({title: 'search'})
@@ -261,7 +261,7 @@ describe('api', () => {
           .set('Cookie', cookie)
           .send(bookmarkUpdate)
           .expect(400)
-          .expect({message: 'Bad Request'}, done);
+          .expect({message: 'Bookmark validation failed', errors: [{field: 'url', message: 'Invalid URL'}]}, done);
       });
   })
   it('PUT /bookmarks/:id should return 404 if bookmark doesn\'t exist', done => {

@@ -30,7 +30,8 @@ function start(config) {
 
   app.use((err, req, res, next) => {
     console.error(err);
-    res.status(err.statusCode || 500).json({message: err.message});
+    const {statusCode, message, errors} = err;
+    res.status(statusCode || 500).json({message, errors});
   });
 
   app.use((req, res, next) => {
