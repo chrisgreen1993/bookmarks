@@ -125,6 +125,14 @@ describe('api', () => {
         done();
       });
   });
+  it('POST /users should return 400 if email invalid', done => {
+    const user = {email: 'not_an_email', password: 'a_password'};
+    request(server)
+      .post('/api/users')
+      .send(user)
+      .expect(400)
+      .expect({message: 'User validation failed', errors: [{field: 'email', message: 'Invalid Email'}]}, done);
+  })
   it('GET /bookmarks should get logged in users bookmarks', done => {
     request(server)
       .get('/api/bookmarks')

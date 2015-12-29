@@ -4,6 +4,10 @@ import createError from 'http-errors';
 import {User, Bookmark} from './models';
 import Auth from './auth';
 
+function extractErrors(err) {
+  return Object.keys(err.errors).map(prop => ({field: err.errors[prop].path, message: err.errors[prop].message}));
+}
+
 const api = Router();
 
 api.post('/users', (req, res, next) => {
@@ -17,6 +21,10 @@ api.post('/users', (req, res, next) => {
     })
     .catch(err => {
       if (err.name === 'Error') return next(err);
+      if (err.name === 'ValidationError') {
+        const errors = extractErrors(err);
+        return next(createError(400, err.message, {errors}));
+      }
       return next(createError(409, err.message));
     });
 });
@@ -50,8 +58,7 @@ api.post('/bookmarks', Auth.ensureAuthenticated, (req, res, next) => {
     .then(bookmark => res.json(bookmark))
     .catch(err => {
       if (err.name === 'ValidationError') {
-        console.log(err);
-        const errors = Object.keys(err.errors).map(prop => ({field: err.errors[prop].path, message: err.errors[prop].message}));
+        const errors = extractErrors(err);
         return next(createError(400, err.message, {errors}));
       }
       next(err);
@@ -86,7 +93,7 @@ api.put('/bookmarks/:id', Auth.ensureAuthenticated, (req, res, next) => {
       if (err.name === 'CastError') return next(createError(404));
       // TODO: error message
       if (err.name === 'ValidationError') {
-        const errors = Object.keys(err.errors).map(prop => ({field: err.errors[prop].path, message: err.errors[prop].message}));
+        const errors = extractErrors(err);
         // Mongoose doesn't put model name at the start for findOneAndUpdate
         const message = 'Bookmark ' + err.message.toLowerCase();
         return next(createError(400, message, {errors}));
