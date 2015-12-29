@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import passport from 'passport';
 import bodyParser from 'body-parser';
 import session from 'express-session';
-import HTTPStatus from 'http-status';
+import createError from 'http-errors';
 import api from './api';
 import Auth from './auth';
 
@@ -30,11 +30,12 @@ function start(config) {
 
   app.use((err, req, res, next) => {
     console.error(err);
-    res.status(err.statusCode || 500).json({status: err.statusCode, error: HTTPStatus[err.statusCode], message: err.message || undefined});
+    res.status(err.statusCode || 500).json({message: err.message});
   });
 
   app.use((req, res, next) => {
-    res.status(404).json({status: 404, error: HTTPStatus[404]});
+    const err = createError(404);
+    res.status(404).json({message: err.message});
   });
 
   const server = app.listen(8000, 'localhost', () => {

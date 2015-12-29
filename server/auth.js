@@ -1,4 +1,5 @@
 import LocalStrategy from 'passport-local';
+import createError from 'http-errors';
 import {User} from './models';
 
 function authenticate() {
@@ -24,9 +25,7 @@ function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   }
-  const err = new Error();
-  err.statusCode = 401;
-  next(err);
+  next(createError(401));
 }
 
 export default {authenticate, serialize, deserialize, ensureAuthenticated};

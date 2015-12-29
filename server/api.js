@@ -1,5 +1,6 @@
 import {Router} from 'express';
 import passport from 'passport';
+import createError from 'http-errors';
 import {User, Bookmark} from './models';
 import Auth from './auth';
 
@@ -16,10 +17,7 @@ api.post('/users', (req, res, next) => {
     })
     .catch(err => {
       //TODO: Check if server error
-      const error = new Error();
-      error.statusCode = 409;
-      error.message = err.message;
-      return next(error);
+      return next(createError(409, err.message));
     });
 });
 
@@ -27,12 +25,7 @@ api.post('/users', (req, res, next) => {
 api.post('/users/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) return next(err);
-    if (!user) {
-      const error = new Error();
-      error.statusCode = 401;
-      error.message = info.message;
-      return next(error);
-    }
+    if (!user) return next(createError(401, info.message));
     req.logIn(user, err => {
       if (err) return next(err);
       res.json(user);
@@ -42,7 +35,7 @@ api.post('/users/login', (req, res, next) => {
 
 api.post('/users/logout', Auth.ensureAuthenticated, (req, res) => {
   req.logout();
-  res.json({message: 'Logged out'});
+  res.status(204).send();
 });
 
 api.get('/bookmarks', Auth.ensureAuthenticated, (req, res, next) => {
@@ -56,12 +49,8 @@ api.post('/bookmarks', Auth.ensureAuthenticated, (req, res, next) => {
   Bookmark.create({title, url, user: req.user._id})
     .then(bookmark => res.json(bookmark))
     .catch(err => {
-      if (err.name === 'ValidationError') {
-        // TODO: error message
-        const error = new Error();
-        error.statusCode = 400;
-        return next(error);
-      }
+      // TODO: error message
+      if (err.name === 'ValidationError') return next(createError(400));
       next(err);
     });
 });
@@ -69,21 +58,13 @@ api.post('/bookmarks', Auth.ensureAuthenticated, (req, res, next) => {
 api.get('/bookmarks/:id', Auth.ensureAuthenticated, (req, res, next) => {
   Bookmark.findOne({user: req.user._id, _id: req.params.id})
     .then(bookmark => {
-      if (!bookmark) {
-        const err = new Error();
-        err.statusCode = 404;
-        return next(err);
-      }
+      if (!bookmark) return next(createError(404));
       res.json(bookmark);
     })
     .catch(err => {
       // Mongoose throws CastError if ID not valid ObjectId - E.g: 123
       // But we still want to throw a 404 with these
-      if (err.name === 'CastError') {
-        const error = new Error();
-        error.statusCode = 404;
-        return next(error);
-      }
+      if (err.name === 'CastError') return next(createError(404));
       next(err);
     });
 });
@@ -93,27 +74,15 @@ api.put('/bookmarks/:id', Auth.ensureAuthenticated, (req, res, next) => {
   const options = {new: true, runValidators: true};
   Bookmark.findOneAndUpdate({user: req.user._id, _id: req.params.id}, {title, url}, options)
     .then(bookmark => {
-      if (!bookmark) {
-        const err = new Error();
-        err.statusCode = 404;
-        return next(err);
-      }
+      if (!bookmark) return next(createError(404));
       res.json(bookmark);
     })
     .catch(err => {
       // Mongoose throws CastError if ID not valid ObjectId - E.g: 123
       // But we still want to throw a 404 with these
-      if (err.name === 'CastError') {
-        const error = new Error();
-        error.statusCode = 404;
-        return next(error);
-      }
-      if (err.name === 'ValidationError') {
-        // TODO: error message
-        const error = new Error();
-        error.statusCode = 400;
-        return next(error);
-      }
+      if (err.name === 'CastError') return next(createError(404));
+      // TODO: error message
+      if (err.name === 'ValidationError') return next(createError(400));
       next(err);
     });
 });
@@ -121,21 +90,13 @@ api.put('/bookmarks/:id', Auth.ensureAuthenticated, (req, res, next) => {
 api.delete('/bookmarks/:id', Auth.ensureAuthenticated, (req, res, next) => {
   Bookmark.remove({user: req.user._id, _id: req.params.id})
     .then((obj) => {
-      if (obj.result.n === 0) {
-        const err = new Error();
-        err.statusCode = 404;
-        return next(err);
-      }
+      if (obj.result.n === 0) return next(createError(404));
       res.status(204).send();
     })
     .catch((err) => {
       // Mongoose throws CastError if ID not valid ObjectId - E.g: 123
       // But we still want to throw a 404 with these
-      if (err.name === 'CastError') {
-        const err = new Error();
-        err.statusCode = 404;
-        return next(err);
-      }
+      if (err.name === 'CastError') return next(createError(404));
       next(err);
     });
 });

@@ -1,7 +1,6 @@
 /* jshint expr:true */
 import request from 'supertest';
 import {expect} from 'chai';
-import HTTPStatus from 'http-status';
 import mongoose from 'mongoose';
 import {Bookmark, User} from '../server/models';
 import {start} from '../server';
@@ -43,7 +42,7 @@ describe('api', () => {
     request(server)
       .get('/api/not_here')
       .expect(404)
-      .expect({status: 404, error: 'Not Found'}, done);
+      .expect({message: 'Not Found'}, done);
   });
   it('POST /users/login should return 401 if incorrect email', done => {
     const login = {email: 'email@not_exist.com', password: 'password'};
@@ -51,7 +50,7 @@ describe('api', () => {
       .post('/api/users/login')
       .send(login)
       .expect(401)
-      .expect({status: 401, error: 'Unauthorized', message: 'Incorrect Email'})
+      .expect({message: 'Incorrect Email'})
       .end((err, res) => {
         if (err) return done(err);
         expect(res.headers).to.not.have.property('set-cookie');
@@ -64,7 +63,7 @@ describe('api', () => {
       .post('/api/users/login')
       .send(login)
       .expect(401)
-      .expect({status: 401, error: 'Unauthorized', message: 'Incorrect Password'})
+      .expect({message: 'Incorrect Password'})
       .end((err, res) => {
         if (err) return done(err);
         expect(res.headers).to.not.have.property('set-cookie');
@@ -89,13 +88,13 @@ describe('api', () => {
     request(server)
       .get('/api/bookmarks')
       .expect(401)
-      .expect({status: 401, error: 'Unauthorized'}, done);
+      .expect({message: 'Unauthorized'}, done);
   });
   it('POST /users/logout should logout user', done => {
     request(server)
       .post('/api/users/logout')
       .set('Cookie', cookie)
-      .expect(200)
+      .expect(204)
       .end((err, res) => {
         if (err) return done(err);
         // User logged out, should fail
@@ -111,7 +110,7 @@ describe('api', () => {
       .post('/api/users')
       .send(user)
       .expect(409)
-      .expect({status: 409, error: 'Conflict', message: 'User with this email already exists'}, done);
+      .expect({message: 'User with this email already exists'}, done);
   });
   it('POST /users should return new user and log them in', done => {
     const user = {email: 'hello@email.net', password: 'super_strong_and_safe'};
@@ -186,7 +185,7 @@ describe('api', () => {
       .set('Cookie', cookie)
       .send({})
       .expect(400)
-      .expect({status: 400, error: 'Bad Request'}, done);
+      .expect({message: 'Bad Request'}, done);
   });
   it('POST /bookmarks should return 400 if url isn\'t valid', done => {
     request(server)
@@ -194,7 +193,7 @@ describe('api', () => {
       .set('Cookie', cookie)
       .send({'url': 54647})
       .expect(400)
-      .expect({status: 400, error: 'Bad Request'}, done);
+      .expect({message: 'Bad Request'}, done);
   });
   it('GET /bookmarks/:id should return bookmark', done => {
     Bookmark.findOne({title: 'search'})
@@ -220,7 +219,7 @@ describe('api', () => {
       .get('/api/bookmarks/123345') //Invalid ID
       .set('Cookie', cookie)
       .expect(404)
-      .expect({status: 404, error: 'Not Found'})
+      .expect({message: 'Not Found'})
       .end((err, res) => {
         if (err) return done(err);
         const id = '551137c2f9e1fac808a5f572'; // Valid ID - doesn't exist
@@ -229,7 +228,7 @@ describe('api', () => {
           .get('/api/bookmarks/' + id)
           .set('Cookie', cookie)
           .expect(404)
-          .expect({status: 404, error: 'Not Found'}, done);
+          .expect({message: 'Not Found'}, done);
       });
   });
   it('PUT /bookmarks/:id should update bookmark', done => {
@@ -262,7 +261,7 @@ describe('api', () => {
           .set('Cookie', cookie)
           .send(bookmarkUpdate)
           .expect(400)
-          .expect({status: 400, error: 'Bad Request'}, done);
+          .expect({message: 'Bad Request'}, done);
       });
   })
   it('PUT /bookmarks/:id should return 404 if bookmark doesn\'t exist', done => {
@@ -272,7 +271,7 @@ describe('api', () => {
       .set('Cookie', cookie)
       .send(bookmarkUpdate)
       .expect(404)
-      .expect({status: 404, error: 'Not Found'})
+      .expect({message: 'Not Found'})
       .end((err, res) => {
         if (err) return done(err);
         const id = '551137c2f9e1fac808a5f572'; // Valid ID - doesn't exist
@@ -282,7 +281,7 @@ describe('api', () => {
           .set('Cookie', cookie)
           .send(bookmarkUpdate)
           .expect(404)
-          .expect({status: 404, error: 'Not Found'}, done);
+          .expect({message: 'Not Found'}, done);
       });
   });
   it('DELETE /bookmarks/:id should delete bookmark', done => {
@@ -308,7 +307,7 @@ describe('api', () => {
       .delete('/api/bookmarks/23563463') // Invalid ID
       .set('Cookie', cookie)
       .expect(404)
-      .expect({status: 404, error: 'Not Found'})
+      .expect({message: 'Not Found'})
       .end((err, res) => {
         if (err) return done(err);
         const id = '551137c2f9e1fac808a5f572'; // Valid ID - doesn't exist
@@ -317,7 +316,7 @@ describe('api', () => {
           .delete('/api/bookmarks/' + id)
           .set('Cookie', cookie)
           .expect(404)
-          .expect({status: 404, error: 'Not Found'}, done);
+          .expect({message: 'Not Found'}, done);
       });
   });
 });
