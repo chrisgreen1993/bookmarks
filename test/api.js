@@ -119,6 +119,7 @@ describe('api', () => {
       .send(user)
       .expect(200)
       .end((err, res) => {
+        if (err) return done(err);
         expect(res.body).to.have.all.keys('_id', 'email');
         expect(res.body.email).to.equal('hello@email.net');
         expect(res.headers).to.have.property('set-cookie');
@@ -132,13 +133,14 @@ describe('api', () => {
       .send(user)
       .expect(400)
       .expect({message: 'User validation failed', errors: [{field: 'email', message: 'Invalid Email'}]}, done);
-  })
+  });
   it('GET /bookmarks should get logged in users bookmarks', done => {
     request(server)
       .get('/api/bookmarks')
       .set('Cookie', cookie)
       .expect(200)
       .end((err, res) => {
+        if (err) return done(err);
         User.findOne({email: 'email@email.com'})
           .then(user => {
             expect(res.body).to.exist;
@@ -271,7 +273,7 @@ describe('api', () => {
           .expect(400)
           .expect({message: 'Bookmark validation failed', errors: [{field: 'url', message: 'Invalid URL'}]}, done);
       });
-  })
+  });
   it('PUT /bookmarks/:id should return 404 if bookmark doesn\'t exist', done => {
     const bookmarkUpdate = {title: 'updated this', url: 'webpage.com/updated_this'};
     request(server)

@@ -91,7 +91,6 @@ api.put('/bookmarks/:id', Auth.ensureAuthenticated, (req, res, next) => {
       // Mongoose throws CastError if ID not valid ObjectId - E.g: 123
       // But we still want to throw a 404 with these
       if (err.name === 'CastError') return next(createError(404));
-      // TODO: error message
       if (err.name === 'ValidationError') {
         const errors = extractErrors(err);
         // Mongoose doesn't put model name at the start for findOneAndUpdate
