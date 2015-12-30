@@ -1,9 +1,13 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import passport from 'passport';
+import createError from 'http-errors';
+import webpack from 'webpack';
+import webpackDevMiddleware from 'webpack-dev-middleware';
+import webpackHotMiddleware from 'webpack-hot-middleware';
 import bodyParser from 'body-parser';
 import session from 'express-session';
-import createError from 'http-errors';
+import webpackConfig from '../webpack.config';
 import api from './api';
 import Auth from './auth';
 
@@ -16,6 +20,9 @@ function start(config) {
   db.on('error', console.error.bind(console, 'connection error'));
   mongoose.Promise = Promise;
 
+  const compiler = webpack(webpackConfig);
+  app.use(webpackDevMiddleware(compiler, {publicPath: webpackConfig.output.publicPath}));
+  app.use(webpackHotMiddleware(compiler));
 
   app.use(bodyParser.json());
   app.use(session({secret: 'change_this', resave: true, saveUninitialized: false}));
@@ -38,6 +45,8 @@ function start(config) {
     const err = createError(404);
     res.status(404).json({message: err.message});
   });
+
+  app.get('/', (res, req) => res.sendFile(__dirname + '/index.html'));
 
   const server = app.listen(8000, 'localhost', () => {
     const {address, port} = server.address();
