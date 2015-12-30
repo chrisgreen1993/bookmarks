@@ -1,4 +1,3 @@
-/* jshint expr:true */
 import request from 'supertest';
 import {expect} from 'chai';
 import mongoose from 'mongoose';
@@ -12,12 +11,12 @@ describe('api', () => {
   });
   let cookie;
   beforeEach(done => {
-    const user = {email: 'email@email.com', password: "123456"};
+    const user = {email: 'email@email.com', password: '123456'};
     User.create(user)
-      .then(newUser =>  {
+      .then(newUser => {
         const bookmarks = [
           {title: 'cool webpage', url: 'webpage.com/hello', user: newUser._id},
-          {title: 'search', url: 'google.com', user: newUser._id}
+          {title: 'search', url: 'google.com', user: newUser._id},
         ];
         return Bookmark.create(bookmarks);
       })
@@ -226,7 +225,7 @@ describe('api', () => {
   });
   it('GET /bookmarks/:id should return 404 if bookmark doesn\'t exist', done => {
     request(server)
-      .get('/api/bookmarks/123345') //Invalid ID
+      .get('/api/bookmarks/123345') // Invalid ID
       .set('Cookie', cookie)
       .expect(404)
       .expect({message: 'Not Found'})

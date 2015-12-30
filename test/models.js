@@ -1,4 +1,3 @@
-/* jshint expr:true */
 import {expect} from 'chai';
 import mongoose from 'mongoose';
 import {Bookmark, User} from '../server/models';
@@ -10,7 +9,7 @@ describe('models', () => {
     mongoose.connection.on('connected', done);
   });
   beforeEach(done => {
-    const user = {email: 'email@email.com', password: "123456"};
+    const user = {email: 'email@email.com', password: '123456'};
     User.create(user)
       .then(() => done())
       .catch(done);
@@ -68,7 +67,7 @@ describe('models', () => {
     it('Should hash password on save', done => {
       const user = new User({email: 'test@test.com', password: 'password'});
       user.save()
-        .then(user => User.findOne().sort({_id:-1}))
+        .then(user => User.findOne().sort({_id: -1}))
         .then(user => {
           expect(user).to.exist;
           expect(user._id).to.exist;

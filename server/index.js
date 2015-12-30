@@ -1,3 +1,4 @@
+import path from 'path';
 import express from 'express';
 import mongoose from 'mongoose';
 import passport from 'passport';
@@ -20,9 +21,11 @@ function start(config) {
   db.on('error', console.error.bind(console, 'connection error'));
   mongoose.Promise = Promise;
 
-  const compiler = webpack(webpackConfig);
-  app.use(webpackDevMiddleware(compiler, {publicPath: webpackConfig.output.publicPath}));
-  app.use(webpackHotMiddleware(compiler));
+  if (app.get('env') !== 'test') {
+    const compiler = webpack(webpackConfig);
+    app.use(webpackDevMiddleware(compiler, {publicPath: webpackConfig.output.publicPath}));
+    app.use(webpackHotMiddleware(compiler));
+  }
 
   app.use(bodyParser.json());
   app.use(session({secret: 'change_this', resave: true, saveUninitialized: false}));
@@ -35,6 +38,8 @@ function start(config) {
 
   app.use('/api', api);
 
+  app.get('/', (req, res) => res.sendFile(path.join(appRoot, 'client', 'index.html')));
+
   app.use((err, req, res, next) => {
     console.error(err);
     const {statusCode, message, errors} = err;
@@ -46,7 +51,6 @@ function start(config) {
     res.status(404).json({message: err.message});
   });
 
-  app.get('/', (res, req) => res.sendFile(__dirname + '/index.html'));
 
   const server = app.listen(8000, 'localhost', () => {
     const {address, port} = server.address();

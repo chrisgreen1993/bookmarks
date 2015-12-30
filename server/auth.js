@@ -4,7 +4,7 @@ import {User} from './models';
 
 function authenticate() {
   return new LocalStrategy({
-    usernameField: 'email'
+    usernameField: 'email',
   },
   (email, password, done) => {
     User.login(email, password)

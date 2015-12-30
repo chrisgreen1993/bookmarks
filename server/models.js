@@ -7,9 +7,9 @@ const BookmarkSchema = new mongoose.Schema({
   url: {
     type: String,
     required: true,
-    validate: [validator.isURL, 'Invalid URL']
+    validate: [validator.isURL, 'Invalid URL'],
   },
-  user: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true}
+  user: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
 });
 
 BookmarkSchema.set('toJSON', {versionKey: false});
@@ -19,10 +19,9 @@ const UserSchema = new mongoose.Schema({
     type: String,
     unique: true,
     required: true,
-    validate: [validator.isEmail, 'Invalid Email']
+    validate: [validator.isEmail, 'Invalid Email'],
   },
-  password: {type: String, required: true}
-
+  password: {type: String, required: true},
 });
 
 UserSchema.pre('save', function(next) {
@@ -50,16 +49,16 @@ UserSchema.methods = {
         });
       });
     });
-  }
+  },
 };
 
 UserSchema.statics = {
   register(email, password) {
     return new Promise((resolve, reject) => {
-      this.findOne({email: email})
+      this.findOne({email})
         .then(user => {
           if (user) return reject({message: 'User with this email already exists'});
-          return User.create({email, password});
+          return this.create({email, password});
         })
         .then(user => resolve(user))
         .catch(err => reject(err));
@@ -67,7 +66,7 @@ UserSchema.statics = {
   },
   login(email, password) {
     return new Promise((resolve, reject) => {
-      this.findOne({email: email})
+      this.findOne({email})
         .then(user => {
           if (!user) return reject({message: 'Incorrect Email'});
           user.validPassword(password)
@@ -78,7 +77,7 @@ UserSchema.statics = {
         })
         .catch(err => reject(err));
     });
-  }
+  },
 };
 
 UserSchema.set('toJSON', {
@@ -86,7 +85,7 @@ UserSchema.set('toJSON', {
   transform: (doc, ret, options) => {
     delete ret.password;
     return ret;
-  }
+  },
 });
 
 const Bookmark = mongoose.model('Bookmark', BookmarkSchema);
