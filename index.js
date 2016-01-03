@@ -1,3 +1,2 @@
 require('babel-register');
-global.appRoot = __dirname;
-require('./server').start('development');
+require('./src/server').start('development');

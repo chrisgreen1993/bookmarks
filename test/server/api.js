@@ -1,8 +1,8 @@
 import request from 'supertest';
 import {expect} from 'chai';
 import mongoose from 'mongoose';
-import {Bookmark, User} from '../server/models';
-import {start} from '../server';
+import {Bookmark, User} from '../../src/server/models';
+import {start} from '../../src/server';
 
 describe('api', () => {
   let server;
@@ -23,7 +23,6 @@ describe('api', () => {
       .then(() => {
         request(server).post('/api/users/login').send(user).expect(200).end((err, res) => {
           if (err) return done(err);
-          console.log(res.headers['set-cookie']);
           cookie = res.headers['set-cookie'].pop().split(';')[0];
           done();
         });

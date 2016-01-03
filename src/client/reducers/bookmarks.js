@@ -1,6 +1,5 @@
-import {combineReducers} from 'redux';
 import Immutable from 'immutable';
-import {ADD_BOOKMARK, UPDATE_BOOKMARK, DELETE_BOOKMARK} from '../actions';
+import {ADD_BOOKMARK, UPDATE_BOOKMARK, DELETE_BOOKMARK} from '../actions/bookmarks';
 
 const initialState = Immutable.Map({});
 
@@ -17,6 +16,4 @@ function bookmarks(state = initialState, action) {
   }
 }
 
-const rootReducer = combineReducers({bookmarks});
-
-export default rootReducer;
+export default bookmarks;

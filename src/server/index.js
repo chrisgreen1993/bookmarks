@@ -8,7 +8,7 @@ import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import bodyParser from 'body-parser';
 import session from 'express-session';
-import webpackConfig from '../webpack.config';
+import webpackConfig from '../../webpack.config';
 import api from './api';
 import Auth from './auth';
 
@@ -38,7 +38,8 @@ function start(config) {
 
   app.use('/api', api);
 
-  app.get('*', (req, res) => res.sendFile(path.resolve(appRoot, 'client', 'index.html')));
+  // Send SPA on all routes except /api, so they can 404 normally
+  app.get(/^(?!\/api).*$/, (req, res) => res.sendFile(path.resolve(__dirname, '..', 'client', 'index.html')));
 
   app.use((err, req, res, next) => {
     console.error(err);

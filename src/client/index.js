@@ -13,11 +13,16 @@ import NotFound from './containers/NotFound';
 
 const store = configureStore();
 
+function requireAuth(nextState, replaceState) {
+  // Some authy check
+  //replaceState({nextPathname: nextState.location.pathname}, '/login');
+}
+
 render(
   <Provider store={store}>
     <Router history={createHistory()}>
       <Route path="/" component={App}>
-        <IndexRoute component={Bookmarks} />
+        <IndexRoute component={Bookmarks} onEnter={requireAuth} />
         <Route path="register" component={Register} />
         <Route path="login" component={Login} />
         <Route path="*" component={NotFound} />

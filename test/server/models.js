@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import mongoose from 'mongoose';
-import {Bookmark, User} from '../server/models';
+import {Bookmark, User} from '../../src/server/models';
 
 describe('models', () => {
   before((done) => {
