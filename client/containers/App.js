@@ -1,20 +1,19 @@
-import React from 'react';
+import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
-import NavBar from '../components/NavBar';
-import AddBookmark from '../components/AddBookmark';
-import BookmarkList from '../components/BookmarkList';
 
-class App extends React.Component {
+class App extends Component {
   render() {
     return (
       <div>
-        <NavBar />
-        <AddBookmark />
-        <BookmarkList />
+        {this.props.children}
       </div>
     );
   }
 }
+
+App.propTypes = {
+  children: PropTypes.element.isRequired,
+};
 
 function select(state) {
   return {state};

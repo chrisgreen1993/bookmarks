@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {Component} from 'react';
 
-class AddBookmark extends React.Component {
+class AddBookmark extends Component {
   render() {
     return (
       <div>AddBookmark</div>

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {Component} from 'react';
 
-class Bookmark extends React.Component {
+class Bookmark extends Component {
   render() {
     return (
       <div>Bookmark</div>

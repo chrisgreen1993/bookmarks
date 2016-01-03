@@ -38,7 +38,7 @@ function start(config) {
 
   app.use('/api', api);
 
-  app.get('/', (req, res) => res.sendFile(path.join(appRoot, 'client', 'index.html')));
+  app.get('*', (req, res) => res.sendFile(path.resolve(appRoot, 'client', 'index.html')));
 
   app.use((err, req, res, next) => {
     console.error(err);

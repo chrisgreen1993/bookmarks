@@ -23,6 +23,7 @@ describe('api', () => {
       .then(() => {
         request(server).post('/api/users/login').send(user).expect(200).end((err, res) => {
           if (err) return done(err);
+          console.log(res.headers['set-cookie']);
           cookie = res.headers['set-cookie'].pop().split(';')[0];
           done();
         });
