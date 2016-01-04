@@ -41,7 +41,7 @@ export function deleteBookmark(id) {
     return request.del(`/api/bookmarks/${id}`)
       .end(err => {
         if (err) return dispatch({type: types.DELETE_BOOKMARK_FAIL, error: err.response.body});
-        return dispatch({type: types.DELETE_BOOKMARK_SUCCESS});
+        return dispatch({type: types.DELETE_BOOKMARK_SUCCESS, id});
       });
   };
 }

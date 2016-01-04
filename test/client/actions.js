@@ -212,7 +212,7 @@ describe('actions', () => {
         .reply(204);
       const expectedActions = [
         {type: types.DELETE_BOOKMARK},
-        {type: types.DELETE_BOOKMARK_SUCCESS},
+        {type: types.DELETE_BOOKMARK_SUCCESS, id: 123},
       ];
       const store = mockStore({}, expectedActions, done);
       store.dispatch(deleteBookmark(123));

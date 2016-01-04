@@ -133,7 +133,7 @@ describe('api', () => {
       .expect(400)
       .expect({message: 'User validation failed', errors: [{field: 'email', message: 'Invalid Email'}]}, done);
   });
-  it('GET /bookmarks should get logged in users bookmarks', done => {
+  it('GET /bookmarks should get logged in users bookmarks - newest first', done => {
     request(server)
       .get('/api/bookmarks')
       .set('Cookie', cookie)
@@ -145,11 +145,11 @@ describe('api', () => {
             expect(res.body).to.exist;
             expect(res.body).to.have.length(2);
             res.body.map(bookmark => expect(bookmark).to.have.all.keys('_id', 'title', 'url', 'user'));
-            expect(res.body[0].title).to.equal('cool webpage');
-            expect(res.body[0].url).to.equal('webpage.com/hello');
+            expect(res.body[0].title).to.equal('search');
+            expect(res.body[0].url).to.equal('google.com');
             expect(res.body[0].user).to.equal(user._id.toString());
-            expect(res.body[1].title).to.equal('search');
-            expect(res.body[1].url).to.equal('google.com');
+            expect(res.body[1].title).to.equal('cool webpage');
+            expect(res.body[1].url).to.equal('webpage.com/hello');
             expect(res.body[1].user).to.equal(user._id.toString());
             done();
           })

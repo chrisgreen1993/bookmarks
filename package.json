@@ -38,6 +38,7 @@
     "babel-preset-react-hmre": "^1.0.1",
     "babel-register": "^6.3.13",
     "chai": "^3.4.1",
+    "chai-immutable": "^1.5.3",
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^2.1.1",
     "eslint-plugin-react": "^3.13.1",

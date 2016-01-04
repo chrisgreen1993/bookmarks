@@ -1,14 +1,20 @@
 import Immutable from 'immutable';
-import {LOGIN_USER, REGISTER_USER} from '../actions/user';
+import * as types from '../constants/actionTypes';
 
-const initialState = Immutable.Map({});
+const initialState = {
+  _id: null,
+  email: null,
+  login_errors: {},
+  register_errors: {},
+};
 
-function user(state = initialState, action) {
+function user(state = Immutable.fromJS(initialState), action) {
   switch (action.type) {
-    case LOGIN_USER:
-      return state;
-    case REGISTER_USER:
-      return state;
+    case types.REGISTER_USER_SUCCESS:
+    case types.LOGIN_USER_SUCCESS:
+      return state.set('_id', action.user._id).set('email', action.user.email);
+    case types.LOGOUT_USER_SUCCESS:
+      return Immutable.fromJS(initialState);
     default:
       return state;
   }

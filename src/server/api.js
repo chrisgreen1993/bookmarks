@@ -47,7 +47,7 @@ api.post('/users/logout', Auth.ensureAuthenticated, (req, res) => {
 });
 
 api.get('/bookmarks', Auth.ensureAuthenticated, (req, res, next) => {
-  Bookmark.find({user: req.user._id})
+  Bookmark.find({user: req.user._id}).sort({_id: -1})
     .then(bookmarks => res.json(bookmarks))
     .catch(err => next(err));
 });
