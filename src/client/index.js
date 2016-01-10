@@ -7,24 +7,33 @@ import {createHistory} from 'history';
 import configureStore from './store/configureStore';
 import App from './containers/App';
 import Bookmarks from './containers/Bookmarks';
+import Auth from './containers/Auth';
 import Register from './containers/Register';
 import Login from './containers/Login';
-import NotFound from './containers/NotFound';
+import NotFound from './components/NotFound';
 
 const store = configureStore();
 
 function requireAuth(nextState, replaceState) {
-  // Some authy check
-  //replaceState({nextPathname: nextState.location.pathname}, '/login');
+  // send request instead
+  /*
+  const state = store.getState();
+  if (!state.user._id) {
+    replaceState({nextPathname: nextState.location.pathname}, '/login');
+  }*/
 }
 
 render(
   <Provider store={store}>
     <Router history={createHistory()}>
-      <Route path="/" component={App}>
-        <IndexRoute component={Bookmarks} onEnter={requireAuth} />
-        <Route path="register" component={Register} />
-        <Route path="login" component={Login} />
+      <Route path="/">
+        <Route component={App}>
+          <IndexRoute component={Bookmarks} onEnter={requireAuth} />
+        </Route>
+        <Route component={Auth}>
+          <Route path="register" component={Register} />
+          <Route path="login" component={Login} />
+        </Route>
         <Route path="*" component={NotFound} />
       </Route>
     </Router>
