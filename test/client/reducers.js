@@ -69,6 +69,44 @@ describe('reducers', () => {
       });
       expect(state).to.equal(expected);
     });
+    it('Should set login_errors when action is LOGIN_USER_FAIL', () => {
+      const action = {
+        type: types.LOGIN_USER_FAIL,
+        error: {message: 'Login failed', errors: [{field: 'password', message: 'Incorrect Password'}]},
+      };
+      const state = user(undefined, action);
+      const expected = Immutable.fromJS({
+        _id: null,
+        email: null,
+        login_errors: {
+          message: 'Login failed',
+          errors: [{
+            field: 'password', message: 'Incorrect Password',
+          }],
+        },
+        register_errors: {},
+      });
+      expect(state).to.equal(expected);
+    })
+    it('Should set register_errors when action is REGISTER_USER_FAIL', () => {
+      const action = {
+        type: types.REGISTER_USER_FAIL,
+        error: {message: 'Registration failed', errors: [{field: 'email', message: 'User with this email already exists'}]},
+      };
+      const state = user(undefined, action);
+      const expected = Immutable.fromJS({
+        _id: null,
+        email: null,
+        login_errors: {},
+        register_errors: {
+          message: 'Registration failed',
+          errors: [{
+            field: 'email', message: 'User with this email already exists',
+          }],
+        },
+      });
+      expect(state).to.equal(expected);
+    })
   });
   describe('bookmarks', () => {
     it('Should return initial state', () => {
