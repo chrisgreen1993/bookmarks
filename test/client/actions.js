@@ -18,10 +18,10 @@ describe('actions', () => {
       const password = 'incorrect';
       nock('http://localhost')
         .post('/api/users/login', {email, password})
-        .reply(401, {message: 'Incorrect Password'});
+        .reply(401, {message: 'Login failed', errors: [{field: 'password', message: 'Incorrect Password'}]});
       const expectedActions = [
         {type: types.LOGIN_USER},
-        {type: types.LOGIN_USER_FAIL, error: {message: 'Incorrect Password'}},
+        {type: types.LOGIN_USER_FAIL, error: {message: 'Login failed', errors: [{field: 'password', message: 'Incorrect Password'}]}},
       ];
       const store = mockStore({}, expectedActions, done);
       store.dispatch(loginUser(email, password));
