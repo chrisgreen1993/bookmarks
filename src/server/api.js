@@ -25,7 +25,7 @@ api.post('/users', (req, res, next) => {
         const errors = extractErrors(err);
         return next(createError(400, err.message, {errors}));
       }
-      return next(createError(409, err.message));
+      return next(createError(409, err));
     });
 });
 
@@ -33,7 +33,7 @@ api.post('/users', (req, res, next) => {
 api.post('/users/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) return next(err);
-    if (!user) return next(createError(401, info.message));
+    if (!user) return next(createError(401, info));
     req.logIn(user, err => {
       if (err) return next(err);
       res.json(user);

@@ -57,7 +57,11 @@ UserSchema.statics = {
     return new Promise((resolve, reject) => {
       this.findOne({email})
         .then(user => {
-          if (user) return reject({message: 'User with this email already exists'});
+          if (user) {
+            const message = 'Registration failed';
+            const errors = [{field: 'email', message: 'User with this email already exists'}];
+            return reject({message, errors});
+          }
           return this.create({email, password});
         })
         .then(user => resolve(user))
@@ -68,10 +72,18 @@ UserSchema.statics = {
     return new Promise((resolve, reject) => {
       this.findOne({email})
         .then(user => {
-          if (!user) return reject({message: 'Incorrect Email'});
+          if (!user) {
+            const message = 'Login failed';
+            const errors = [{field: 'email', message: 'Incorrect Email'}];
+            return reject({message, errors});
+          }
           user.validPassword(password)
             .then(isMatch => {
-              if (!isMatch) return reject({message: 'Incorrect Password'});
+              if (!isMatch) {
+                const message = 'Login failed';
+                const errors = [{field: 'password', message: 'Incorrect Password'}];
+                return reject({message, errors});
+              }
               resolve(user);
             });
         })

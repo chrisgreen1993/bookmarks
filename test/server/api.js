@@ -49,7 +49,7 @@ describe('api', () => {
       .post('/api/users/login')
       .send(login)
       .expect(401)
-      .expect({message: 'Incorrect Email'})
+      .expect({message: 'Login failed', errors: [{field: 'email', message: 'Incorrect Email'}]})
       .end((err, res) => {
         if (err) return done(err);
         expect(res.headers).to.not.have.property('set-cookie');
@@ -62,7 +62,7 @@ describe('api', () => {
       .post('/api/users/login')
       .send(login)
       .expect(401)
-      .expect({message: 'Incorrect Password'})
+      .expect({message: 'Login failed', errors: [{field: 'password', message: 'Incorrect Password'}]})
       .end((err, res) => {
         if (err) return done(err);
         expect(res.headers).to.not.have.property('set-cookie');
@@ -109,7 +109,7 @@ describe('api', () => {
       .post('/api/users')
       .send(user)
       .expect(409)
-      .expect({message: 'User with this email already exists'}, done);
+      .expect({message: 'Registration failed', errors: [{field: 'email', message: 'User with this email already exists'}]}, done);
   });
   it('POST /users should return new user and log them in', done => {
     const user = {email: 'hello@email.net', password: 'super_strong_and_safe'};

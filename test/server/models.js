@@ -83,9 +83,12 @@ describe('models', () => {
         .catch(err => {
           expect(err).to.exist;
           expect(err.name).to.not.exist;
-          expect(err.message).to.equal('Incorrect Email');
+          expect(err.message).to.equal('Login failed');
+          expect(err.errors).to.have.length(1);
+          expect(err.errors[0].field).to.equal('email');
+          expect(err.errors[0].message).to.equal('Incorrect Email');
           done();
-        });
+        }).catch(done);
     });
     it('#login should fail if password incorrect', done => {
       User.login('email@email.com', 'incorrect')
@@ -93,9 +96,12 @@ describe('models', () => {
         .catch(err => {
           expect(err).to.exist;
           expect(err.name).to.not.exist;
-          expect(err.message).to.equal('Incorrect Password');
+          expect(err.message).to.equal('Login failed');
+          expect(err.errors).to.have.length(1);
+          expect(err.errors[0].field).to.equal('password');
+          expect(err.errors[0].message).to.equal('Incorrect Password');
           done();
-        });
+        }).catch(done);
     });
     it('#login should return user if all correct', done => {
       User.login('email@email.com', '123456')
@@ -116,9 +122,12 @@ describe('models', () => {
         .catch(err => {
           expect(err).to.exist;
           expect(err.name).to.not.exist;
-          expect(err.message).to.equal('User with this email already exists');
+          expect(err.message).to.equal('Registration failed');
+          expect(err.errors).to.have.length(1);
+          expect(err.errors[0].field).to.equal('email');
+          expect(err.errors[0].message).to.equal('User with this email already exists');
           done();
-        });
+        }).catch(done);
     });
     it('#register should return new user if no user with same email', done => {
       User.register('an_email@email.co.uk', 'super_secret')
